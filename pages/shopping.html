@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>购物车</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+
+    body {
+      background-color: #f5f5f5;
+    }
+
+    .cart-container {
+      max-width: 1000px;
+      margin: 20px auto;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .cart-header {
+      padding: 15px 20px;
+      background-color: #f8f9fa;
+      border-bottom: 1px solid #e9ecef;
+      display: grid;
+      grid-template-columns: 3fr 1fr 2fr 2fr 2fr 1fr;
+      align-items: center;
+    }
+
+    .cart-item {
+      padding: 20px;
+      border-bottom: 1px solid #e9ecef;
+      display: grid;
+      grid-template-columns: 3fr 1fr 2fr 2fr 2fr 1fr;
+      align-items: center;
+      transition: transform 0.2s;
+    }
+
+    .cart-item:hover {
+      transform: translateX(5px);
+    }
+
+    .cart-item img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 4px;
+    }
+
+    .cart-item-info {
+      display: flex;
+      gap: 15px;
+    }
+
+    .quantity-control {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .quantity-btn {
+      width: 30px;
+      height: 30px;
+      border: 1px solid #dee2e6;
+      background-color: white;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background-color 0.2s;
+    }
+
+    .quantity-btn:hover {
+      background-color: #f8f9fa;
+    }
+
+    .quantity-input {
+      width: 50px;
+      height: 30px;
+      border: 1px solid #dee2e6;
+      text-align: center;
+    }
+
+    .price {
+      color: #2c3e50;
+      font-weight: 500;
+    }
+
+    .total-section {
+      padding: 20px;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .total-price {
+      font-size: 18px;
+      color: #27ae60;
+      font-weight: 600;
+    }
+
+    .checkout-btn {
+      padding: 10px 25px;
+      background-color: #27ae60;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: transform 0.2s;
+    }
+
+    .checkout-btn:hover {
+      transform: scale(1.05);
+    }
+
+    .empty-cart {
+      padding: 50px 20px;
+      text-align: center;
+      color: #7f8c8d;
+    }
+  </style>
+</head>
+<body>
+<div class="cart-container">
+  <!-- 购物车头部 -->
+  <div class="cart-header">
+    <div>商品信息</div>
+    <div>商家</div>
+    <div>单价</div>
+    <div>数量</div>
+    <div>总价</div>
+    <div>操作</div>
+  </div>
+
+  <!-- 购物车商品列表 -->
+  <div id="cart-items"></div>
+
+  <!-- 空购物车提示 -->
+  <div id="empty-cart" class="empty-cart" style="display: none;">
+    购物车空空如也，快去挑选喜欢的商品吧！
+  </div>
+
+  <!-- 总计和结算 -->
+  <div class="total-section" id="total-section">
+    <div>
+      总计：<span class="total-price" id="total-price">$0.00</span>
+    </div>
+    <button class="checkout-btn" onclick="checkout()">去支付</button>
+  </div>
+</div>
+
+<script>
+  // 从本地存储获取购物车数据
+  let shoppingCart = JSON.parse(localStorage.getItem('shoppingCart')) || [];
+
+  // 渲染购物车
+  function renderCart() {
+    const cartItemsContainer = document.getElementById('cart-items');
+    const emptyCart = document.getElementById('empty-cart');
+    const totalPriceElement = document.getElementById('total-price');
+    const totalSection = document.getElementById('total-section');
+
+    cartItemsContainer.innerHTML = "";
+    let total = 0;
+
+    if (shoppingCart.length === 0) {
+      emptyCart.style.display = "block";
+      totalSection.style.display = "none";
+      return;
+    } else {
+      emptyCart.style.display = "none";
+      totalSection.style.display = "flex";
+    }
+
+    shoppingCart.forEach(item => {
+      const cartItemDiv = document.createElement('div');
+      cartItemDiv.classList.add('cart-item');
+      cartItemDiv.innerHTML = `
+                    <div class="cart-item-info">
+                        <img src="${item.image}" alt="${item.name}">
+                        <div>
+                            <p>${item.name}</p>
+                        </div>
+                    </div>
+                    <div class="price">${item.merchant}</div>
+                    <div class="price">$${item.price.toFixed(2)}</div>
+                    <div class="quantity-control">
+                        <button class="quantity-btn" data-action="decrease">-</button>
+                        <input type="number" class="quantity-input" value="${item.quantity}" min="1">
+                        <button class="quantity-btn" data-action="increase">+</button>
+                    </div>
+                    <div class="price" data-price="${item.price}">$${(item.price * item.quantity).toFixed(2)}</div>
+                    <div><button class="delete-btn" data-id="${item.id}">删除</button></div>
+                `;
+
+      // 数量增减事件
+      const decreaseBtn = cartItemDiv.querySelector('[data-action="decrease"]');
+      const increaseBtn = cartItemDiv.querySelector('[data-action="increase"]');
+      const quantityInput = cartItemDiv.querySelector('.quantity-input');
+
+      decreaseBtn.addEventListener('click', () => {
+        if (item.quantity > 1) {
+          item.quantity--;
+          quantityInput.value = item.quantity;
+          const priceElement = cartItemDiv.querySelector('.price[data-price]');
+          priceElement.textContent = `$${(item.price * item.quantity).toFixed(2)}`;
+          localStorage.setItem('shoppingCart', JSON.stringify(shoppingCart));
+          renderCart();
+        }
+      });
+
+      increaseBtn.addEventListener('click', () => {
+        item.quantity++;
+        quantityInput.value = item.quantity;
+        const priceElement = cartItemDiv.querySelector('.price[data-price]');
+        priceElement.textContent = `$${(item.price * item.quantity).toFixed(2)}`;
+        localStorage.setItem('shoppingCart', JSON.stringify(shoppingCart));
+        renderCart();
+      });
+
+      // 删除按钮事件
+      const deleteBtn = cartItemDiv.querySelector('.delete-btn');
+      deleteBtn.addEventListener('click', () => {
+        shoppingCart = shoppingCart.filter(cartItem => cartItem.id!== item.id);
+        localStorage.setItem('shoppingCart', JSON.stringify(shoppingCart));
+        renderCart();
+      });
+
+      cartItemsContainer.appendChild(cartItemDiv);
+      total += item.price * item.quantity;
+    });
+
+    totalPriceElement.textContent = `$${total.toFixed(2)}`;
+  }
+
+  // 结算函数
+  function checkout() {
+    // 将购物车数据转移到订单数据
+    const orders = shoppingCart.map(item => ({
+      id: item.id,
+      productName: item.name,
+      productImage: item.image,
+      price: item.price,
+      quantity: item.quantity
+    }));
+    localStorage.setItem('orders', JSON.stringify(orders));
+    // 清空购物车
+    localStorage.removeItem('shoppingCart');
+    // 跳转到支付页面
+    window.location.href = 'payment.html';
+  }
+
+  // 页面加载时渲染购物车
+  window.addEventListener('load', renderCart);
+</script>
+</body>
+</html>
