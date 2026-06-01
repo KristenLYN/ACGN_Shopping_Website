@@ -27,6 +27,8 @@ I was mainly responsible for frontend development.
 - Basic frontend interaction logic
 
 ## Project Structure
+
+```text
 ACGN_Shopping_Website/
 ├── index.html
 ├── pages/
@@ -37,6 +39,7 @@ ACGN_Shopping_Website/
 ├── docs/
 │   └── screenshots/
 └── README.md
+```
 
 ## How to Run
 1. Clone this repository
