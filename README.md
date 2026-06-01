@@ -38,7 +38,7 @@ ACGN_Shopping_Website/
 │   └── screenshots/
 └── README.md
 
-##How to Run
+## How to Run
 1. Clone this repository
 git clone https://github.com/KristenLYN/ACGN_Shopping_Website.git
 2. Open index.html in a browser
