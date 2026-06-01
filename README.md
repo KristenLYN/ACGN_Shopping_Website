@@ -1,14 +1,13 @@
 # ACGN Shopping Website
 
-An ACGN-themed shopping website developed as a Web Technology course project from 2025.01 to 2025.05
+An ACGN-themed shopping website developed as a Web Technology course project from 2025.01 to 2025.05.
 The project focuses on frontend page design, product browsing, shopping cart interface, and basic user interaction.
 
 ## My Role
 
 I was mainly responsible for frontend development.
 
-- Designed and implemented user-facing shopping website pages.
-- Built product display, product detail, and shopping cart interfaces.
+- Built homepage and product display interfaces.
 - Implemented basic page interactions using HTML, CSS, and JavaScript.
 - Improved page layout and visual consistency for a better browsing experience.
 
